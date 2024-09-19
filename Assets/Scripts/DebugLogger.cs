@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.InputSystem;
 
-/*public class DebugTMP : MonoBehaviour
+public class DebugTMP : MonoBehaviour
 {
     public InputActionReference resetButton;
     public bool isMultiLine = false;
@@ -85,4 +85,4 @@ using UnityEngine.InputSystem;
 
         return $"{type}: {message}\nObject: {objectName}\nScript: {scriptInfo}\nLine: {lineNumber}\n";
     }
-}*/
+}

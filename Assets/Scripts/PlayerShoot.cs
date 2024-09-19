@@ -5,50 +5,59 @@ using UnityEngine.InputSystem;
 
 public class PlayerShoot : MonoBehaviour
 {
-    public GameObject BulletTemplate;
-    public float shootPower = 100f;
-    public InputActionReference trigger;
+    // These fields will appear in the Unity Inspector
+    public GameObject Bullet;  // Reference to the bullet prefab
+    public float shootPower = 100f;  // How fast the bullet will travel
+    public InputActionReference Trigger;  // Input trigger for shooting
     public float bulletLifetime = 5f;  // Time in seconds before the bullet is destroyed
 
     // Start is called before the first frame update
     void Start()
     {
-        if (trigger == null)
+        // Check if the Trigger action is assigned in the Inspector
+        if (Trigger == null)
         {
             Debug.LogError("Trigger is not assigned in the Inspector.");
             return;
         }
 
-        if (trigger.action == null)
+        // Check if the action is correctly assigned
+        if (Trigger.action == null)
         {
             Debug.LogError("Trigger action is not assigned.");
             return;
         }
 
+        // Subscribe to the trigger action event
         Debug.Log("Trigger action is assigned. Subscribing to event.");
-        trigger.action.performed += Shoot;  // Attach the Shoot method to the trigger action
+        Trigger.action.performed += Shoot;  // Attach the Shoot method to the trigger action
     }
 
+    // Method called when the trigger is pressed
     void Shoot(InputAction.CallbackContext __)
     {
-        if (BulletTemplate == null)
+        // Check if Bullet prefab is assigned in the Inspector
+        if (Bullet == null)
         {
-            Debug.LogError("BulletTemplate is not assigned.");
+            Debug.LogError("Bullet is not assigned.");
             return;
         }
 
-        GameObject newBullet = Instantiate(BulletTemplate, transform.position, transform.rotation);
+        // Create a new bullet instance at the player's position and rotation
+        GameObject newBullet = Instantiate(Bullet, transform.position, transform.rotation);
         Rigidbody rb = newBullet.GetComponent<Rigidbody>();
 
+        // Apply velocity to the bullet if it has a Rigidbody
         if (rb != null)
         {
-            rb.velocity = transform.forward * shootPower;  // Adjust velocity for faster bullets
+            rb.velocity = transform.forward * shootPower;  // Bullet moves forward based on shootPower
         }
 
         // Start the coroutine to destroy the bullet after a delay
         StartCoroutine(DestroyBulletAfterDelay(newBullet, bulletLifetime));
     }
 
+    // Coroutine to destroy the bullet after a set time
     private IEnumerator DestroyBulletAfterDelay(GameObject bullet, float delay)
     {
         yield return new WaitForSeconds(delay);
