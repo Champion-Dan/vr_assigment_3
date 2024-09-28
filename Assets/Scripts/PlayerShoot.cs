@@ -5,7 +5,6 @@ using UnityEngine.InputSystem;
 
 public class PlayerShoot : MonoBehaviour
 {
-    // These fields will appear in the Unity Inspector
     public GameObject Bullet;  // Reference to the bullet prefab
     public float shootPower = 100f;  // How fast the bullet will travel
     public InputActionReference Trigger;  // Input trigger for shooting
@@ -29,13 +28,14 @@ public class PlayerShoot : MonoBehaviour
         }
 
         // Subscribe to the trigger action event
-        Debug.Log("Trigger action is assigned. Subscribing to event.");
         Trigger.action.performed += Shoot;  // Attach the Shoot method to the trigger action
     }
 
     // Method called when the trigger is pressed
     void Shoot(InputAction.CallbackContext __)
     {
+        Debug.Log("Shoot method called!");
+
         // Check if Bullet prefab is assigned in the Inspector
         if (Bullet == null)
         {
@@ -43,17 +43,16 @@ public class PlayerShoot : MonoBehaviour
             return;
         }
 
-        // Create a new bullet instance at the player's position and rotation
+        // Create the bullet at the current position and rotation of the object with this script
         GameObject newBullet = Instantiate(Bullet, transform.position, transform.rotation);
         Rigidbody rb = newBullet.GetComponent<Rigidbody>();
 
-        // Apply velocity to the bullet if it has a Rigidbody
+        // Apply velocity to the bullet based on the object's forward direction
         if (rb != null)
         {
-            rb.velocity = transform.forward * shootPower;  // Bullet moves forward based on shootPower
+            rb.velocity = transform.forward * shootPower; // Shoot in the forward direction of the object
         }
 
-        // Start the coroutine to destroy the bullet after a delay
         StartCoroutine(DestroyBulletAfterDelay(newBullet, bulletLifetime));
     }
 
