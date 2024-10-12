@@ -9,7 +9,7 @@ game over.
 Please note that I was not able to get everything working as intended unfortunately.
 Wanted to impliment maze for player to run through. Could not get walls to cooperate with the collider as intended and thus player and enemies can go through walls. 
 Goal cube collider works and will reset/ end game and return to home screen if collided with. 
-Could not get analog inout movement working on real VR headset. It does work with simulated controls utilizing WASD. Will attempt to record working game success. 
+Could not get analog input movement working on real VR headset. It does work with simulated controls utilizing WASD. Will attempt to record working game success. 
 Wanted to impliment damage taken from bullets from shooting enemy. Ran into issue with bullets set to destroy on collisison and bullets I fire were coliding with my own hitbox. 
 Lastly wanted to impliment damage done to enemies and have them destoyed if enough damage was taken. Scripts did not work as intended. 
 Most issues go back to the colliders/ hitboxes not working as intended. 
