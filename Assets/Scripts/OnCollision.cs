@@ -17,6 +17,12 @@ public class OnCollision : MonoBehaviour
                 cubeHealth.TakeDamage(damage);  // Deal damage to the cube
             }
         }
+        else if (collision.gameObject.CompareTag("wall"))  // Optional: Check if collided with a wall
+        {
+            // Optionally handle what happens when a bullet hits a wall
+            Debug.Log("Bullet hit a wall!");
+            // You might want to add effects or sounds here
+        }
 
         Destroy(gameObject);  // Destroy the bullet after impact
     }

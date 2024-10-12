@@ -4,66 +4,48 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
-    // Speed for enemy movement
-    [SerializeField]
-    private float move_speed = 10f;
+    public Transform player; // Reference to the player
+    public float followRange = 10f; // Distance within which the enemy starts to follow
+    public float speed = 2f; // Speed at which the enemy moves
 
-    // Time interval between shots
-    [SerializeField]
-    private float shootingInterval = 2f;
+    private Rigidbody rb; // Reference to the Rigidbody component
 
-    // Bullet prefab to shoot
-    [SerializeField]
-    private GameObject bulletPrefab;
-
-    // Speed of the bullet
-    [SerializeField]
-    private float bulletSpeed = 20f;
-
-    // Reference to player object
-    private GameObject playerTarget;
-
-    // Time tracking for shooting
-    private float timeSinceLastShot = 0f;
-
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        if (playerTarget != null)
-        {
-            // Look at the player
-            transform.LookAt(playerTarget.transform.position);
-
-            // Move towards the player
-            transform.position += transform.forward * move_speed * Time.deltaTime;
-
-            // Shoot periodically
-            timeSinceLastShot += Time.deltaTime;
-            if (timeSinceLastShot >= shootingInterval)
-            {
-                Shoot();
-                timeSinceLastShot = 0f;
-            }
-        }
+        rb = GetComponent<Rigidbody>(); // Get the Rigidbody component
     }
 
-    // Shoot a bullet in the direction the enemy is facing
-    private void Shoot()
+    private void Update()
     {
-        // Instantiate the bullet prefab at the enemy's position and rotation
-        GameObject bullet = Instantiate(bulletPrefab, transform.position + transform.forward, transform.rotation);
+        // Check the distance between the enemy and the player
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        // Get the Rigidbody component of the bullet and apply forward force
-        Rigidbody rb = bullet.GetComponent<Rigidbody>();
-        rb.velocity = transform.forward * bulletSpeed;
+        // If the player is within follow range, move towards the player
+        if (distanceToPlayer <= followRange)
+        {
+            Vector3 direction = (player.position - transform.position).normalized;
 
-        // Destroy the bullet after 5 seconds to avoid memory leaks
-        Destroy(bullet, 5f);
+            // Move the enemy using Rigidbody.MovePosition
+            rb.MovePosition(transform.position + direction * speed * Time.deltaTime);
+
+            // Optionally, make the enemy look at the player
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * speed);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Set the player as the target when the enemy enters a trigger
-        playerTarget = other.gameObject;
+        // Check if the enemy collides with the player
+        if (other.transform == player)
+        {
+            // End the game (you can replace this with your own logic)
+            Debug.Log("Game Over!");
+            // Example to quit the game or stop play mode in the editor
+            Application.Quit();
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#endif
+        }
     }
 }

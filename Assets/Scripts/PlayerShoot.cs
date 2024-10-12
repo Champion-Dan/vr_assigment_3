@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Audio;
 
 public class PlayerShoot : MonoBehaviour
 {
@@ -9,6 +10,9 @@ public class PlayerShoot : MonoBehaviour
     public float shootPower = 100f;  // How fast the bullet will travel
     public InputActionReference Trigger;  // Input trigger for shooting
     public float bulletLifetime = 5f;  // Time in seconds before the bullet is destroyed
+    public AudioClip shootSoundClip;  // Assign any sound clip in the Inspector
+
+    private AudioSource audioSource;  // Reference to AudioSource component
 
     // Start is called before the first frame update
     void Start()
@@ -28,14 +32,23 @@ public class PlayerShoot : MonoBehaviour
         }
 
         // Subscribe to the trigger action event
-        Trigger.action.performed += Shoot;  // Attach the Shoot method to the trigger action
+        Trigger.action.performed += Shoot;
+
+        // Get or add the AudioSource component
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            // Add an AudioSource component if it's missing
+            audioSource = gameObject.AddComponent<AudioSource>();
+            Debug.Log("AudioSource was missing, so one was added.");
+        }
+
+
     }
 
     // Method called when the trigger is pressed
     void Shoot(InputAction.CallbackContext __)
     {
-        Debug.Log("Shoot method called!");
-
         // Check if Bullet prefab is assigned in the Inspector
         if (Bullet == null)
         {
@@ -53,6 +66,17 @@ public class PlayerShoot : MonoBehaviour
             rb.velocity = transform.forward * shootPower; // Shoot in the forward direction of the object
         }
 
+        // Play the shooting sound if AudioClip is assigned
+        if (shootSoundClip != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(shootSoundClip);  // Play the assigned audio clip once
+        }
+        else
+        {
+            Debug.LogWarning("No AudioClip assigned or AudioSource missing for the shoot sound.");
+        }
+
+        // Destroy bullet after a set time
         StartCoroutine(DestroyBulletAfterDelay(newBullet, bulletLifetime));
     }
 

@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class ShootingEnemyAI : MonoBehaviour
 {
-    // Speed for enemy movement
-    [SerializeField]
-    private float moveSpeed = 5f;
-
     // Time interval between shots
     [SerializeField]
     private float shootingInterval = 2f;
@@ -20,11 +16,19 @@ public class ShootingEnemyAI : MonoBehaviour
     [SerializeField]
     private float bulletSpeed = 20f;
 
+    // Damage dealt by the bullet
+    [SerializeField]
+    private int bulletDamage = 10; // Set the damage for the bullet
+
     // Reference to player object
     private GameObject playerTarget;
 
     // Time tracking for shooting
     private float timeSinceLastShot = 0f;
+
+    // Detection range for the enemy
+    [SerializeField]
+    private float detectionRange = 15f;
 
     void Start()
     {
@@ -37,36 +41,51 @@ public class ShootingEnemyAI : MonoBehaviour
     {
         if (playerTarget != null)
         {
-            // Enemy looks at the player
-            transform.LookAt(playerTarget.transform.position);
+            // Calculate the distance to the player
+            float distanceToPlayer = Vector3.Distance(transform.position, playerTarget.transform.position);
 
-            // Move towards the player
-            transform.position += transform.forward * moveSpeed * Time.deltaTime;
-
-            // Shoot periodically
-            timeSinceLastShot += Time.deltaTime;
-            if (timeSinceLastShot >= shootingInterval)
+            // Check if the player is within detection range
+            if (distanceToPlayer <= detectionRange)
             {
-                Shoot();
-                timeSinceLastShot = 0f;
+                // Enemy looks at the player
+                transform.LookAt(playerTarget.transform.position);
+
+                // Shoot periodically
+                timeSinceLastShot += Time.deltaTime;
+                if (timeSinceLastShot >= shootingInterval)
+                {
+                    Shoot();
+                    timeSinceLastShot = 0f;
+                }
             }
         }
     }
 
-    // Shoot a bullet in the direction the enemy is facing
+    // Shoot a bullet towards the player's current position
     private void Shoot()
     {
-        // Instantiate the bullet prefab at the enemy's position and rotation
-        GameObject bullet = Instantiate(bulletPrefab, transform.position + transform.forward, transform.rotation);
+        // Instantiate the bullet prefab at the enemy's position
+        GameObject bullet = Instantiate(bulletPrefab, transform.position + transform.forward, Quaternion.identity);
 
-        // Get the Rigidbody component of the bullet and apply forward force
+        // Calculate direction towards the player
+        Vector3 directionToPlayer = (playerTarget.transform.position - transform.position).normalized;
+
+        // Get the Rigidbody component of the bullet and apply force in the direction of the player
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.velocity = transform.forward * bulletSpeed;
+            rb.velocity = directionToPlayer * bulletSpeed;
+        }
+
+        // Set the bullet's damage
+        Bullet bulletScript = bullet.GetComponent<Bullet>();
+        if (bulletScript != null)
+        {
+            bulletScript.damage = bulletDamage; // Assign the damage to the bullet
         }
 
         // Destroy the bullet after 5 seconds to avoid memory leaks
         Destroy(bullet, 5f);
     }
+
 }
